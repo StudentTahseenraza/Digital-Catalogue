@@ -70,47 +70,47 @@ const Products = () => {
   };
 
   // DETAIL SECTIONS (UNCHANGED STRUCTURE)
-  const productSections = [
-    {
-      id: 'inverters',
-      title: 'Inverters',
-      description: 'Pure sine wave inverters for seamless power backup',
-      icon: <Zap className="h-8 w-8" />,
-      products: products.inverters,
-      features: [
-        'Smart Technology',
-        'Pure Sine Wave Output',
-        'Overload Protection',
-        'Silent Operation'
-      ]
-    },
-    {
-      id: 'batteries',
-      title: 'Batteries',
-      description: 'Long-lasting tubular batteries with superior performance',
-      icon: <Battery className="h-8 w-8" />,
-      products: products.batteries,
-      features: [
-        'Deep Cycle Design',
-        'Low Maintenance',
-        'Spill Proof',
-        'Long Life'
-      ]
-    },
-    {
-      id: 'ups',
-      title: 'UPS Systems',
-      description: 'Enterprise-grade uninterruptible power supply solutions',
-      icon: <Shield className="h-8 w-8" />,
-      products: products.ups,
-      features: [
-        'Online Double Conversion',
-        'Zero Transfer Time',
-        'LCD Display',
-        'Network Management'
-      ]
-    }
-  ];
+  // const productSections = [
+  //   {
+  //     id: 'inverters',
+  //     title: 'Inverters',
+  //     description: 'Pure sine wave inverters for seamless power backup',
+  //     icon: <Zap className="h-8 w-8" />,
+  //     products: products.inverters,
+  //     features: [
+  //       'Smart Technology',
+  //       'Pure Sine Wave Output',
+  //       'Overload Protection',
+  //       'Silent Operation'
+  //     ]
+  //   },
+  //   {
+  //     id: 'batteries',
+  //     title: 'Batteries',
+  //     description: 'Long-lasting tubular batteries with superior performance',
+  //     icon: <Battery className="h-8 w-8" />,
+  //     products: products.batteries,
+  //     features: [
+  //       'Deep Cycle Design',
+  //       'Low Maintenance',
+  //       'Spill Proof',
+  //       'Long Life'
+  //     ]
+  //   },
+  //   {
+  //     id: 'ups',
+  //     title: 'UPS Systems',
+  //     description: 'Enterprise-grade uninterruptible power supply solutions',
+  //     icon: <Shield className="h-8 w-8" />,
+  //     products: products.ups,
+  //     features: [
+  //       'Online Double Conversion',
+  //       'Zero Transfer Time',
+  //       'LCD Display',
+  //       'Network Management'
+  //     ]
+  //   }
+  // ];
 
   return (
     <div className="min-h-screen py-8">
@@ -118,9 +118,10 @@ const Products = () => {
 
         {/* HEADER */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-neutral-dark mb-4">
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-teal-500 to-green-600 bg-clip-text text-transparent">
             OUR PRODUCT RANGE
           </h1>
+
           <p className="text-xl text-neutral-gray max-w-3xl mx-auto">
             Premium Power Equipment & Energy Solutions.
           </p>
@@ -149,11 +150,10 @@ const Products = () => {
         <div className="mb-10 flex flex-wrap gap-3">
           <button
             onClick={() => handleCategoryClick('all')}
-            className={`px-4 py-2 rounded-full flex items-center gap-2 ${
-              activeCategory === 'all'
+            className={`px-4 py-2 rounded-full flex items-center gap-2 ${activeCategory === 'all'
                 ? 'bg-primary-blue text-white'
                 : 'bg-neutral-light hover:bg-neutral-200'
-            }`}
+              }`}
           >
             <Shield className="h-4 w-4" />
             All Products
@@ -166,11 +166,10 @@ const Products = () => {
             <button
               key={cat.id}
               onClick={() => handleCategoryClick(cat.id)}
-              className={`px-4 py-2 rounded-full flex items-center gap-2 ${
-                activeCategory === cat.id
+              className={`px-4 py-2 rounded-full flex items-center gap-2 ${activeCategory === cat.id
                   ? 'bg-primary-blue text-white'
                   : 'bg-neutral-light hover:bg-neutral-200'
-              }`}
+                }`}
             >
               {getCategoryIcon(cat.name)}
               {cat.name}

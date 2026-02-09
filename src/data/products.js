@@ -33,7 +33,7 @@ export const products = {
         { label: "Output", value: "Pure Sine" },
         { label: "Weight", value: "10kg" }
       ],
-      image: "https://images.unsplash.com/photo-1595436006173-2c72d0bfb8ab?auto=format&fit=crop&w=500",
+      image: "https://noblepowers.in/wp-content/uploads/2025/05/1000122047.jpg",
       cta: "Get Best Price Now"
     },
     {
@@ -73,7 +73,7 @@ export const products = {
         { label: "Weight", value: "48kg" }
       ],
       badge: "BEST SELLER",
-      image: "https://images.unsplash.com/photo-1598550476439-6847785e79e6?auto=format&fit=crop&w=500",
+      image: "https://solance.in/wp-content/uploads/2024/08/18000.png",
       cta: "Get Best Price Now"
     },
     {
@@ -128,7 +128,7 @@ export const products = {
         { label: "Weight", value: "58kg" }
       ],
       badge: "PREMIUM",
-      image: "https://images.unsplash.com/photo-1627556704305-6be9c5d1497c?auto=format&fit=crop&w=500",
+      image: "https://www.batterymantra.com/images/product/63982a21cdbadSF-TT-60.jpg",
       cta: "Get Best Price Now"
     }
   ],
@@ -210,24 +210,24 @@ export const products = {
       image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=500",
       cta: "Get Best Price Now"
     },
-    {
-      id: 12,
-      name: "Poly Solar Panel 330W",
-      category: "Solar Panels",
-      features: [
-        { name: "Warranty", value: "25 Year" },
-        { name: "Efficiency", value: "18%" },
-        { name: "Durability", value: "Weatherproof" }
-      ],
-      specs: [
-        { label: "Power", value: "330W" },
-        { label: "Type", value: "Poly" },
-        { label: "Cells", value: "72" },
-        { label: "Size", value: "1.8m²" }
-      ],
-      image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=500",
-      cta: "Get Best Price Now"
-    }
+    // {
+    //   id: 12,
+    //   name: "Poly Solar Panel 330W",
+    //   category: "Solar Panels",
+    //   features: [
+    //     { name: "Warranty", value: "25 Year" },
+    //     { name: "Efficiency", value: "18%" },
+    //     { name: "Durability", value: "Weatherproof" }
+    //   ],
+    //   specs: [
+    //     { label: "Power", value: "330W" },
+    //     { label: "Type", value: "Poly" },
+    //     { label: "Cells", value: "72" },
+    //     { label: "Size", value: "1.8m²" }
+    //   ],
+    //   image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=500",
+    //   cta: "Get Best Price Now"
+    // }
   ],
 
   lithium: [
@@ -247,7 +247,7 @@ export const products = {
         { label: "Weight", value: "25kg" }
       ],
       badge: "NEW",
-      image: "https://images.unsplash.com/photo-1627556704305-6be9c5d1497c?auto=format&fit=crop&w=500",
+      image: "https://images-cdn.ubuy.co.in/639a6d7b508fe728054513e4-litime-48v-100ah-lifepo4-lithium.jpg",
       cta: "Get Best Price Now"
     }
   ]
