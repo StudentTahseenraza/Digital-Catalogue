@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Filter, Battery, Sun, Zap, Shield } from 'lucide-react';
+import {
+  Search,
+  Filter,
+  Battery,
+  Sun,
+  Zap,
+  Shield,
+  CheckCircle
+} from 'lucide-react';
+
 import ProductCard from '../components/ProductCard';
 import { products, categories } from '../data/products';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-
   const categoryParam = searchParams.get('category');
-  const initialCategory = categoryParam || 'all';
-  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [activeCategory, setActiveCategory] = useState(categoryParam || 'all');
 
   const getCategoryIcon = (category) => {
     switch (category.toLowerCase()) {
@@ -23,6 +29,8 @@ const Products = () => {
       case 'solar panels':
       case 'solar inverters':
         return <Sun className="h-5 w-5" />;
+      case 'ups systems':
+        return <Shield className="h-5 w-5" />;
       default:
         return <Shield className="h-5 w-5" />;
     }
@@ -36,11 +44,23 @@ const Products = () => {
     ...products.lithium
   ];
 
-  const filteredProducts = allProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = activeCategory === 'all' || 
-                          product.category.toLowerCase().includes(activeCategory.toLowerCase());
+  // ✅ SAFE + BETTER FILTERING
+  const filteredProducts = allProducts.filter((product) => {
+    const search = searchTerm.toLowerCase();
+
+    const matchesSearch =
+      product.name.toLowerCase().includes(search) ||
+      product.category.toLowerCase().includes(search) ||
+      product.features?.some(
+        (f) =>
+          f.name.toLowerCase().includes(search) ||
+          (f.value && f.value.toLowerCase().includes(search))
+      );
+
+    const matchesCategory =
+      activeCategory === 'all' ||
+      product.category.toLowerCase().includes(activeCategory.toLowerCase());
+
     return matchesSearch && matchesCategory;
   });
 
@@ -49,119 +69,177 @@ const Products = () => {
     setSearchParams(category === 'all' ? {} : { category });
   };
 
+  // DETAIL SECTIONS (UNCHANGED STRUCTURE)
+  const productSections = [
+    {
+      id: 'inverters',
+      title: 'Inverters',
+      description: 'Pure sine wave inverters for seamless power backup',
+      icon: <Zap className="h-8 w-8" />,
+      products: products.inverters,
+      features: [
+        'Smart Technology',
+        'Pure Sine Wave Output',
+        'Overload Protection',
+        'Silent Operation'
+      ]
+    },
+    {
+      id: 'batteries',
+      title: 'Batteries',
+      description: 'Long-lasting tubular batteries with superior performance',
+      icon: <Battery className="h-8 w-8" />,
+      products: products.batteries,
+      features: [
+        'Deep Cycle Design',
+        'Low Maintenance',
+        'Spill Proof',
+        'Long Life'
+      ]
+    },
+    {
+      id: 'ups',
+      title: 'UPS Systems',
+      description: 'Enterprise-grade uninterruptible power supply solutions',
+      icon: <Shield className="h-8 w-8" />,
+      products: products.ups,
+      features: [
+        'Online Double Conversion',
+        'Zero Transfer Time',
+        'LCD Display',
+        'Network Management'
+      ]
+    }
+  ];
+
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto px-4">
-        {/* Header */}
+
+        {/* HEADER */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-neutral-dark mb-4">OUR PRODUCT RANGE</h1>
+          <h1 className="text-4xl font-bold text-neutral-dark mb-4">
+            OUR PRODUCT RANGE
+          </h1>
           <p className="text-xl text-neutral-gray max-w-3xl mx-auto">
-            Premium Power Equipment & Energy Solutions. Explore our comprehensive range of high-quality products.
+            Premium Power Equipment & Energy Solutions.
           </p>
         </div>
 
-        {/* Search and Filter */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-auto">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-gray h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-3 w-full md:w-96 border border-neutral-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue"
-                />
-              </div>
-            </div>
-            <div className="flex items-center space-x-2 text-neutral-gray">
-              <Filter className="h-5 w-5" />
-              <span className="font-medium">Filter by:</span>
-            </div>
+        {/* SEARCH + FILTER */}
+        <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
+          <div className="relative w-full md:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-gray h-5 w-5" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-3 w-full border border-neutral-light rounded-lg focus:ring-2 focus:ring-primary-blue outline-none"
+            />
+          </div>
+
+          <div className="flex items-center space-x-2 text-neutral-gray">
+            <Filter className="h-5 w-5" />
+            <span className="font-medium">Filter by:</span>
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-3">
+        {/* CATEGORIES */}
+        <div className="mb-10 flex flex-wrap gap-3">
+          <button
+            onClick={() => handleCategoryClick('all')}
+            className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+              activeCategory === 'all'
+                ? 'bg-primary-blue text-white'
+                : 'bg-neutral-light hover:bg-neutral-200'
+            }`}
+          >
+            <Shield className="h-4 w-4" />
+            All Products
+            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+              {allProducts.length}
+            </span>
+          </button>
+
+          {categories.map((cat) => (
             <button
-              onClick={() => handleCategoryClick('all')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all ${
-                activeCategory === 'all'
+              key={cat.id}
+              onClick={() => handleCategoryClick(cat.id)}
+              className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+                activeCategory === cat.id
                   ? 'bg-primary-blue text-white'
-                  : 'bg-neutral-light text-neutral-dark hover:bg-neutral-200'
+                  : 'bg-neutral-light hover:bg-neutral-200'
               }`}
             >
-              <Shield className="h-4 w-4" />
-              <span>All Products</span>
+              {getCategoryIcon(cat.name)}
+              {cat.name}
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                {cat.count}
+              </span>
             </button>
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategoryClick(category.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all ${
-                  activeCategory === category.id
-                    ? 'bg-primary-blue text-white'
-                    : 'bg-neutral-light text-neutral-dark hover:bg-neutral-200'
-                }`}
-              >
-                {getCategoryIcon(category.name)}
-                <span>{category.name}</span>
-                <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-                  {category.count}
-                </span>
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
 
-        {/* Products Grid */}
+        {/* PRODUCTS GRID */}
         {filteredProducts.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-            <div className="text-center">
-              <p className="text-neutral-gray mb-4">
-                Showing {filteredProducts.length} of {allProducts.length} products
-              </p>
-              <p className="text-sm text-neutral-gray">
-                Prices available on request. Contact us for quotes and dealership inquiries.
-              </p>
-            </div>
-          </>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="bg-neutral-light rounded-2xl p-8 max-w-md mx-auto">
-              <Search className="h-12 w-12 text-neutral-gray mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-neutral-dark mb-2">No products found</h3>
-              <p className="text-neutral-gray mb-4">Try adjusting your search or filter criteria</p>
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  handleCategoryClick('all');
-                }}
-                className="btn-primary"
-              >
-                Clear Filters
-              </button>
-            </div>
+          <div className="text-center py-16">
+            <Search className="h-12 w-12 text-neutral-gray mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">No products found</h3>
+            <p className="text-neutral-gray mt-2">
+              Try changing search or filters
+            </p>
           </div>
         )}
 
-        {/* CTA */}
-        <div className="mt-16 p-8 bg-gradient-to-r from-secondary-green to-secondary-light rounded-2xl text-center text-white">
-          <h2 className="text-2xl font-bold mb-4">Need Custom Power Solutions?</h2>
-          <p className="mb-6 max-w-2xl mx-auto">
-            Contact our technical team for customized products and bulk pricing for dealers.
-          </p>
-          <Link to="/contact" className="inline-block bg-white text-secondary-green hover:bg-neutral-light font-semibold px-8 py-3 rounded-lg transition-colors">
-            Contact Our Experts
-          </Link>
-        </div>
+        {/* DETAIL SECTIONS */}
+        {/* <div className="space-y-12">
+          {productSections.map((section) => (
+            <div key={section.id} className="bg-white rounded-2xl shadow-md p-8">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-primary-blue/10 p-3 rounded-xl">
+                  {section.icon}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">{section.title}</h2>
+                  <p className="text-neutral-gray">{section.description}</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                <ul className="space-y-2">
+                  {section.features.map((f, i) => (
+                    <li key={i} className="flex items-center gap-2 text-neutral-gray">
+                      <CheckCircle className="h-4 w-4 text-secondary-green" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <ul className="space-y-2">
+                  {section.products.map((p) => (
+                    <li key={p.id} className="flex justify-between">
+                      <span>{p.name}</span>
+                      <Link
+                        to={`/contact?product=${encodeURIComponent(p.name)}`}
+                        className="text-primary-blue font-medium"
+                      >
+                        Get Quote
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div> */}
+
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import About from './pages/About';
 import Certificates from './pages/Certificates';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
+import CombinedPage from './pages/CombinedPage';
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
         <Header />
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<CombinedPage/>} />
             <Route path="/about" element={<About />} />
             <Route path="/products" element={<Products />} />
             <Route path="/certificates" element={<Certificates />} />
