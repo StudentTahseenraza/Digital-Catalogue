@@ -8,7 +8,8 @@ const AIRecommender = ({ products }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const allProducts = products || [];
+  // Ensure products is always an array
+  const allProducts = Array.isArray(products) ? products : [];
 
   const questions = [
     {
@@ -41,7 +42,7 @@ const AIRecommender = ({ products }) => {
   ];
 
   const handleAnswer = (questionId, value) => {
-    setAnswers({ ...answers, [questionId]: value });
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
     
     if (step < questions.length) {
       setStep(step + 1);
@@ -82,6 +83,27 @@ const AIRecommender = ({ products }) => {
     setRecommendations([]);
   };
 
+  // Render loading state if no products
+  if (!allProducts.length) {
+    return (
+      <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-emerald-600 rounded-2xl p-6 text-white">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-white/20 p-2 rounded-lg">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold">AI Product Recommender</h3>
+            <p className="text-white/80 text-sm">Loading products...</p>
+          </div>
+        </div>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mx-auto mb-4" />
+          <p>Please wait...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-emerald-600 rounded-2xl p-6 text-white">
       <div className="flex items-center gap-3 mb-6">
@@ -96,6 +118,7 @@ const AIRecommender = ({ products }) => {
 
       {step <= 3 && (
         <div className="space-y-6">
+          {/* Progress Bar */}
           <div className="w-full bg-white/20 rounded-full h-2">
             <div 
               className="bg-white rounded-full h-2 transition-all duration-500"
@@ -103,10 +126,12 @@ const AIRecommender = ({ products }) => {
             />
           </div>
 
+          {/* Question */}
           <div>
             <p className="text-sm text-white/80 mb-2">Question {step} of {questions.length}</p>
             <h4 className="text-lg font-semibold mb-4">{questions[step-1].question}</h4>
             
+            {/* Options */}
             <div className="grid grid-cols-1 gap-3">
               {questions[step-1].options.map((option) => {
                 const Icon = option.icon;
@@ -146,30 +171,42 @@ const AIRecommender = ({ products }) => {
                 <h4 className="text-lg font-semibold">Recommended for you</h4>
                 <button 
                   onClick={resetQuiz}
-                  className="text-sm bg-white/20 px-3 py-1 rounded-full hover:bg-white/30"
+                  className="text-sm bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 transition"
                 >
                   Start Over
                 </button>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                {recommendations.map((product, idx) => (
-                  <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      {product.category === 'Inverters' && <Zap className="h-4 w-4" />}
-                      {product.category === 'Batteries' && <Battery className="h-4 w-4" />}
-                      {product.category === 'Solar Panels' && <Sun className="h-4 w-4" />}
-                      <span className="text-sm font-medium">{product.category}</span>
+                {recommendations.length > 0 ? (
+                  recommendations.map((product, idx) => (
+                    <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        {product.category === 'Inverters' && <Zap className="h-4 w-4" />}
+                        {product.category === 'Batteries' && <Battery className="h-4 w-4" />}
+                        {product.category === 'Solar Panels' && <Sun className="h-4 w-4" />}
+                        <span className="text-sm font-medium">{product.category}</span>
+                      </div>
+                      <h5 className="font-bold text-lg mb-2">{product.name}</h5>
+                      <Link
+                        to={`/contact?product=${encodeURIComponent(product.name)}`}
+                        className="inline-flex items-center gap-1 text-sm font-semibold bg-white text-purple-600 px-3 py-2 rounded-lg hover:bg-white/90 transition w-full justify-center"
+                      >
+                        Get Quote <ArrowRight className="h-3 w-3" />
+                      </Link>
                     </div>
-                    <h5 className="font-bold text-lg mb-2">{product.name}</h5>
-                    <Link
-                      to={`/contact?product=${encodeURIComponent(product.name)}`}
-                      className="inline-flex items-center gap-1 text-sm font-semibold bg-white text-purple-600 px-3 py-2 rounded-lg hover:bg-white/90 transition w-full justify-center"
+                  ))
+                ) : (
+                  <div className="text-center py-4 bg-white/10 rounded-xl">
+                    <p className="text-white/80">No recommendations found. Try different answers.</p>
+                    <button 
+                      onClick={resetQuiz}
+                      className="mt-3 text-sm bg-white/20 px-4 py-2 rounded-full hover:bg-white/30 transition"
                     >
-                      Get Quote <ArrowRight className="h-3 w-3" />
-                    </Link>
+                      Try Again
+                    </button>
                   </div>
-                ))}
+                )}
               </div>
             </>
           )}
@@ -179,4 +216,5 @@ const AIRecommender = ({ products }) => {
   );
 };
 
+// ✅ DEFAULT EXPORT - THIS IS CRITICAL
 export default AIRecommender;
