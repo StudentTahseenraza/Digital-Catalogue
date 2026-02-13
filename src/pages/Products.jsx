@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Search,
   Filter,
@@ -7,32 +7,39 @@ import {
   Sun,
   Zap,
   Shield,
-  CheckCircle
+  Download,
+  RotateCw,
+  MessageCircle,
+  X
 } from 'lucide-react';
 
 import ProductCard from '../components/ProductCard';
+import CompareProducts from '../components/CompareProducts';
+import WhatsAppIntegration from '../components/WhatsAppIntegration';
 import { products, categories } from '../data/products';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [showComparison, setShowComparison] = useState(false);
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [selectedProductForWhatsApp, setSelectedProductForWhatsApp] = useState(null);
+
   const categoryParam = searchParams.get('category');
   const [activeCategory, setActiveCategory] = useState(categoryParam || 'all');
 
   const getCategoryIcon = (category) => {
     switch (category.toLowerCase()) {
       case 'inverters':
-        return <Zap className="h-5 w-5" />;
+        return <Zap className="h-4 w-4 sm:h-5 sm:w-5" />;
       case 'batteries':
-        return <Battery className="h-5 w-5" />;
-      case 'solar':
+        return <Battery className="h-4 w-4 sm:h-5 sm:w-5" />;
       case 'solar panels':
-      case 'solar inverters':
-        return <Sun className="h-5 w-5" />;
-      case 'ups systems':
-        return <Shield className="h-5 w-5" />;
+        return <Sun className="h-4 w-4 sm:h-5 sm:w-5" />;
       default:
-        return <Shield className="h-5 w-5" />;
+        return <Shield className="h-4 w-4 sm:h-5 sm:w-5" />;
     }
   };
 
@@ -44,24 +51,12 @@ const Products = () => {
     ...products.lithium
   ];
 
-  // ✅ SAFE + BETTER FILTERING
   const filteredProducts = allProducts.filter((product) => {
     const search = searchTerm.toLowerCase();
-
-    const matchesSearch =
+    return (
       product.name.toLowerCase().includes(search) ||
-      product.category.toLowerCase().includes(search) ||
-      product.features?.some(
-        (f) =>
-          f.name.toLowerCase().includes(search) ||
-          (f.value && f.value.toLowerCase().includes(search))
-      );
-
-    const matchesCategory =
-      activeCategory === 'all' ||
-      product.category.toLowerCase().includes(activeCategory.toLowerCase());
-
-    return matchesSearch && matchesCategory;
+      product.category.toLowerCase().includes(search)
+    );
   });
 
   const handleCategoryClick = (category) => {
@@ -69,176 +64,173 @@ const Products = () => {
     setSearchParams(category === 'all' ? {} : { category });
   };
 
-  // DETAIL SECTIONS (UNCHANGED STRUCTURE)
-  // const productSections = [
-  //   {
-  //     id: 'inverters',
-  //     title: 'Inverters',
-  //     description: 'Pure sine wave inverters for seamless power backup',
-  //     icon: <Zap className="h-8 w-8" />,
-  //     products: products.inverters,
-  //     features: [
-  //       'Smart Technology',
-  //       'Pure Sine Wave Output',
-  //       'Overload Protection',
-  //       'Silent Operation'
-  //     ]
-  //   },
-  //   {
-  //     id: 'batteries',
-  //     title: 'Batteries',
-  //     description: 'Long-lasting tubular batteries with superior performance',
-  //     icon: <Battery className="h-8 w-8" />,
-  //     products: products.batteries,
-  //     features: [
-  //       'Deep Cycle Design',
-  //       'Low Maintenance',
-  //       'Spill Proof',
-  //       'Long Life'
-  //     ]
-  //   },
-  //   {
-  //     id: 'ups',
-  //     title: 'UPS Systems',
-  //     description: 'Enterprise-grade uninterruptible power supply solutions',
-  //     icon: <Shield className="h-8 w-8" />,
-  //     products: products.ups,
-  //     features: [
-  //       'Online Double Conversion',
-  //       'Zero Transfer Time',
-  //       'LCD Display',
-  //       'Network Management'
-  //     ]
-  //   }
-  // ];
+  const handleCompareToggle = (product, checked) => {
+    if (checked) {
+      if (selectedProducts.length < 3) {
+        setSelectedProducts([...selectedProducts, product]);
+      } else {
+        alert('You can compare up to 3 products at a time');
+      }
+    } else {
+      setSelectedProducts(selectedProducts.filter(p => p.id !== product.id));
+    }
+  };
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-
-        {/* HEADER */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-teal-500 to-green-600 bg-clip-text text-transparent">
+    <div className="min-h-screen py-4 sm:py-8 bg-gray-50">
+      <div className="container mx-auto px-3 sm:px-4">
+        
+        {/* Header */}
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 text-gray-900">
             OUR PRODUCT RANGE
           </h1>
-
-          <p className="text-xl text-neutral-gray max-w-3xl mx-auto">
-            Premium Power Equipment & Energy Solutions.
+          <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+            Premium Power Equipment & Energy Solutions
           </p>
         </div>
 
-        {/* SEARCH + FILTER */}
-        <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-gray h-5 w-5" />
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <button className="flex flex-col items-center p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-lg sm:rounded-xl active:scale-95">
+            <RotateCw className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+            <span className="text-xs sm:text-sm">3D View</span>
+          </button>
+          <button 
+            onClick={() => {
+              setSelectedProductForWhatsApp(allProducts[0]);
+              setShowWhatsApp(true);
+            }}
+            className="flex flex-col items-center p-2 sm:p-3 bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-lg sm:rounded-xl active:scale-95"
+          >
+            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+            <span className="text-xs sm:text-sm">WhatsApp</span>
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-4 sm:mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
             <input
               type="text"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-3 w-full border border-neutral-light rounded-lg focus:ring-2 focus:ring-primary-blue outline-none"
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-blue outline-none bg-white"
             />
           </div>
-
-          <div className="flex items-center space-x-2 text-neutral-gray">
-            <Filter className="h-5 w-5" />
-            <span className="font-medium">Filter by:</span>
-          </div>
         </div>
 
-        {/* CATEGORIES */}
-        <div className="mb-10 flex flex-wrap gap-3">
-          <button
-            onClick={() => handleCategoryClick('all')}
-            className={`px-4 py-2 rounded-full flex items-center gap-2 ${activeCategory === 'all'
-                ? 'bg-primary-blue text-white'
-                : 'bg-neutral-light hover:bg-neutral-200'
-              }`}
-          >
-            <Shield className="h-4 w-4" />
-            All Products
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-              {allProducts.length}
-            </span>
-          </button>
+        {/* Filter Toggle */}
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg mb-4 text-sm hover:bg-gray-50"
+        >
+          <Filter className="h-4 w-4" />
+          Filters
+        </button>
 
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.id)}
-              className={`px-4 py-2 rounded-full flex items-center gap-2 ${activeCategory === cat.id
-                  ? 'bg-primary-blue text-white'
-                  : 'bg-neutral-light hover:bg-neutral-200'
-                }`}
-            >
-              {getCategoryIcon(cat.name)}
-              {cat.name}
-              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-                {cat.count}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* PRODUCTS GRID */}
-        {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <Search className="h-12 w-12 text-neutral-gray mx-auto mb-4" />
-            <h3 className="text-xl font-semibold">No products found</h3>
-            <p className="text-neutral-gray mt-2">
-              Try changing search or filters
-            </p>
+        {/* Filters Panel */}
+        {showFilters && (
+          <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold text-gray-900">Filters</h3>
+              <button 
+                onClick={() => setShowFilters(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white">
+              <option>All Power Ranges</option>
+              <option>1-3kW</option>
+              <option>3-5kW</option>
+              <option>5kW+</option>
+            </select>
           </div>
         )}
 
-        {/* DETAIL SECTIONS */}
-        {/* <div className="space-y-12">
-          {productSections.map((section) => (
-            <div key={section.id} className="bg-white rounded-2xl shadow-md p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="bg-primary-blue/10 p-3 rounded-xl">
-                  {section.icon}
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">{section.title}</h2>
-                  <p className="text-neutral-gray">{section.description}</p>
-                </div>
-              </div>
+        {/* Categories - Scrollable */}
+        <div className="mb-6 overflow-x-auto pb-2">
+          <div className="flex gap-2 min-w-max">
+            <button
+              onClick={() => handleCategoryClick('all')}
+              className={`px-3 py-1.5 rounded-full flex items-center gap-1 text-xs sm:text-sm whitespace-nowrap ${
+                activeCategory === 'all'
+                  ? 'bg-primary-blue text-white'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+            >
+              All ({allProducts.length})
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className={`px-3 py-1.5 rounded-full flex items-center gap-1 text-xs sm:text-sm whitespace-nowrap ${
+                  activeCategory === cat.id
+                    ? 'bg-primary-blue text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }`}
+              >
+                {getCategoryIcon(cat.name)}
+                {cat.name} ({cat.count})
+              </button>
+            ))}
+          </div>
+        </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <ul className="space-y-2">
-                  {section.features.map((f, i) => (
-                    <li key={i} className="flex items-center gap-2 text-neutral-gray">
-                      <CheckCircle className="h-4 w-4 text-secondary-green" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <ul className="space-y-2">
-                  {section.products.map((p) => (
-                    <li key={p.id} className="flex justify-between">
-                      <span>{p.name}</span>
-                      <Link
-                        to={`/contact?product=${encodeURIComponent(p.name)}`}
-                        className="text-primary-blue font-medium"
-                      >
-                        Get Quote
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+        {/* Compare Bar */}
+        {selectedProducts.length > 0 && (
+          <div className="sticky bottom-4 z-40 mb-4">
+            <div className="bg-white rounded-lg shadow-xl border border-emerald-200 p-3 flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-900">{selectedProducts.length} selected</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSelectedProducts([])}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => setShowComparison(true)}
+                  className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                >
+                  Compare
+                </button>
               </div>
             </div>
-          ))}
-        </div> */}
+          </div>
+        )}
 
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onCompareToggle={(checked) => handleCompareToggle(product, checked)}
+              isSelected={selectedProducts.some(p => p.id === product.id)}
+            />
+          ))}
+        </div>
+
+        {/* Modals */}
+        {showComparison && (
+          <CompareProducts
+            products={selectedProducts}
+            onClose={() => setShowComparison(false)}
+          />
+        )}
+
+        {showWhatsApp && (
+          <WhatsAppIntegration
+            product={selectedProductForWhatsApp}
+            onClose={() => setShowWhatsApp(false)}
+          />
+        )}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import LiveChat from './components/LiveChat';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import About from './pages/About';
@@ -13,9 +14,9 @@ import CombinedPage from './pages/CombinedPage';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col w-full overflow-x-hidden">
         <Header />
-        <main className="flex-grow">
+        <main className="flex-grow w-full">
           <Routes>
             <Route path="/" element={<CombinedPage/>} />
             <Route path="/about" element={<About />} />
@@ -26,6 +27,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <LiveChat />
       </div>
     </Router>
   );

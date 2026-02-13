@@ -386,42 +386,6 @@ const Contact = () => {
             </div>
           </div>
         </div>
-
-        {/* Quick Links */}
-        {/* <div className="bg-gradient-to-r from-primary-dark to-primary-blue rounded-2xl p-8 text-white">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">Our Products</h3>
-              <ul className="space-y-2">
-                <li><a href="/products?category=inverters" className="hover:text-white/90">Inverters</a></li>
-                <li><a href="/products?category=batteries" className="hover:text-white/90">Batteries</a></li>
-                <li><a href="/products?category=ups" className="hover:text-white/90">UPS Systems</a></li>
-                <li><a href="/products?category=solar" className="hover:text-white/90">Solar Panels</a></li>
-                <li><a href="/products?category=solar-inverters" className="hover:text-white/90">Solar Inverters</a></li>
-                <li><a href="/products?category=lithium" className="hover:text-white/90">Lithium Battery</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li><a href="/" className="hover:text-white/90">Home</a></li>
-                <li><a href="/about" className="hover:text-white/90">About Us</a></li>
-                <li><a href="/certificates" className="hover:text-white/90">Dealer Certificates</a></li>
-                <li><a href="/services" className="hover:text-white/90">Services</a></li>
-                <li><a href="/contact" className="hover:text-white/90">Contact Us</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Business Hours</h3>
-              <div className="space-y-2">
-                <p>Monday - Saturday</p>
-                <p className="text-lg font-bold">9:00 AM - 7:00 PM</p>
-                <p className="text-white/90 text-sm mt-4">94% Response Rate</p>
-                <p className="text-white/90 text-sm">Average response time: 2 hours</p>
-              </div>
-            </div>
-          </div>
-        </div> */}
       </div>
     </div>
   );

@@ -4,23 +4,30 @@ import {
   ChevronRight,
   Check,
   ExternalLink,
-  Download
+  Download,
+  Eye,
+  Share2,
+  X
 } from 'lucide-react';
 
 // Import certificate images (you'll need to add these images to your project)
 // For demo purposes, I'm using placeholder image URLs
 const certificateImages = {
   iso9001: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop",
-  excellenceAward: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w-800&auto=format&fit=crop",
-  dealerNetwork: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w-800&auto=format&fit=crop",
-  bisCertification: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w-800&auto=format&fit=crop",
-  manufacturerAward: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w-800&auto=format&fit=crop",
-  yearsExcellence: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w-800&auto=format&fit=crop"
+  excellenceAward: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=800&auto=format&fit=crop",
+  dealerNetwork: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&auto=format&fit=crop",
+  bisCertification: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&auto=format&fit=crop",
+  manufacturerAward: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&auto=format&fit=crop",
+  yearsExcellence: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop"
 };
 
 const Certificates = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [showZoom, setShowZoom] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedTitle, setSelectedTitle] = useState('');
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
 
   const certificates = [
     {
@@ -106,44 +113,106 @@ const Certificates = () => {
       ? certificates
       : certificates.filter(cert => cert.category === activeTab);
 
+  const handleViewImage = (image, title) => {
+    setSelectedImage(image);
+    setSelectedTitle(title);
+    setShowZoom(true);
+  };
+
+  const handleShare = async (cert) => {
+    const shareData = {
+      title: cert.title,
+      text: `Check out ${cert.title} - ${cert.description}`,
+      url: window.location.origin + '/certificates'
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Share cancelled',err);
+      }
+    } else {
+      // Fallback - copy to clipboard
+      navigator.clipboard.writeText(
+        `${cert.title}\n${cert.description}\n${shareData.url}`
+      );
+      setShowShareTooltip(true);
+      setTimeout(() => setShowShareTooltip(false), 2000);
+    }
+  };
+
+  const handleDownload = (cert) => {
+    // In a real app, this would download the certificate PDF/image
+    alert(`Downloading certificate: ${cert.title}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
       <div className="container mx-auto px-4">
+
+        {/* Zoom Modal */}
+        {showZoom && selectedImage && (
+          <div 
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowZoom(false)}
+          >
+            <button 
+              onClick={() => setShowZoom(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            >
+              <X className="h-8 w-8" />
+            </button>
+            <div className="max-w-4xl max-h-full">
+              <img 
+                src={selectedImage} 
+                alt={selectedTitle}
+                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <p className="text-white text-center mt-4 text-lg font-semibold">{selectedTitle}</p>
+            </div>
+          </div>
+        )}
 
         {/* Hero Section */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-900 rounded-full mb-6 shadow-lg">
             <Award className="h-12 w-12 text-white" />
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-4 tracking-tight">TRUST & CREDIBILITY</h1>
-          <h2 className="text-3xl font-semibold text-gray-800 mb-6">Dealer Certificates & Accreditations</h2>
-          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">TRUST & CREDIBILITY</h1>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-6">Dealer Certificates & Accreditations</h2>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4">
             Our certifications and awards reflect our commitment to quality, reliability, and customer satisfaction in the power solutions industry.
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-12 flex flex-wrap justify-center gap-4">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 rounded-lg transition-all duration-300 flex items-center gap-2 border ${activeTab === tab.id
-                ? 'bg-gray-900 text-white border-gray-900 shadow-lg'
-                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:shadow-md'
+        {/* Tabs - Scrollable on mobile */}
+        <div className="mb-12 overflow-x-auto pb-2">
+          <div className="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 min-w-max md:min-w-0">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg transition-all duration-300 flex items-center gap-2 border text-sm sm:text-base whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'bg-gray-900 text-white border-gray-900 shadow-lg'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:shadow-md'
                 }`}
-            >
-              <span className="font-semibold">{tab.label}</span>
-              <span className={`px-2 py-1 rounded-full text-xs font-bold ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 text-gray-600'
+              >
+                <span className="font-semibold">{tab.label}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 text-gray-600'
                 }`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Certificates Grid with Images */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+        {/* Certificates Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-20">
           {filteredCertificates.map((cert) => (
             <div
               key={cert.id}
@@ -159,8 +228,8 @@ const Certificates = () => {
                 ${hoveredCard === cert.id ? 'border-gray-900' : ''}
               `}>
 
-                {/* Image Container with Zoom Effect */}
-                <div className="relative h-56 overflow-hidden">
+                {/* Image Container */}
+                <div className="relative h-48 sm:h-56 overflow-hidden cursor-pointer" onClick={() => handleViewImage(cert.image, cert.title)}>
                   <div
                     className={`absolute inset-0 bg-gray-100 transition-all duration-700 ease-out
                       ${hoveredCard === cert.id ? 'scale-110' : 'scale-100'}
@@ -172,13 +241,21 @@ const Certificates = () => {
                       backgroundRepeat: 'no-repeat'
                     }}
                   />
+                  
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
+                  {/* View Icon on Hover */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-black/50 rounded-full p-2 sm:p-3">
+                      <Eye className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                    </div>
+                  </div>
+
                   {/* Featured Badge */}
                   {cert.featured && (
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-white text-gray-900 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2 shadow-md">
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+                      <span className="bg-white text-gray-900 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-2 shadow-md">
                         <Award className="h-3 w-3" />
                         Featured
                       </span>
@@ -186,53 +263,72 @@ const Certificates = () => {
                   )}
 
                   {/* Year Badge */}
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg">
-                    <span className="text-sm font-bold text-gray-900">{cert.year}</span>
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-lg">
+                    <span className="text-xs sm:text-sm font-bold text-gray-900">{cert.year}</span>
                   </div>
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6">
+                <div className="p-4 sm:p-5 md:p-6">
                   {/* Title */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-gray-700 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-gray-700 transition-colors line-clamp-2">
                     {cert.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                  <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed line-clamp-2 sm:line-clamp-3">
                     {cert.description}
                   </p>
 
-                  {/* Bullet Points (for ISO certificate) */}
-                  {cert.bulletPoints && (
-                    <ul className="space-y-2 mb-4">
-                      {cert.bulletPoints.map((point, idx) => (
-                        <li key={idx} className="flex items-center text-gray-700">
-                          <Check className="h-4 w-4 text-gray-400 mr-2" />
-                          <span className="text-sm">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
                   {/* Verification Code */}
-                  <div className="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <code className="text-xs text-gray-600 font-mono">{cert.verification}</code>
+                  <div className="mb-4 sm:mb-6 p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <code className="text-xs text-gray-600 font-mono break-all">{cert.verification}</code>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 pt-4 border-t border-gray-200">
-                    <button className="flex-1 flex items-center justify-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-all duration-300">
-                      <ExternalLink className="h-4 w-4" />
-                      <span className="text-sm font-medium">View Certificate</span>
+                  <div className="flex gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200">
+                    {/* Share Button */}
+                    <div className="relative">
+                      <button
+                        onClick={() => handleShare(cert)}
+                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
+                        aria-label="Share"
+                      >
+                        <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                      </button>
+                      {showShareTooltip && (
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Link copied!
+                        </div>
+                      )}
+                    </div>
+
+                    {/* View Certificate Button */}
+                    <button 
+                      onClick={() => handleViewImage(cert.image, cert.title)}
+                      className="flex-1 flex items-center justify-center gap-1 sm:gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 px-3 sm:px-4 py-2 rounded-lg transition-all duration-300 text-xs sm:text-sm"
+                    >
+                      <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="font-medium">View</span>
                     </button>
+
+                    {/* Download Button */}
+                    <button 
+                      onClick={() => handleDownload(cert)}
+                      className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
+                      aria-label="Download"
+                    >
+                      <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </button>
+
+                    {/* External Link Button */}
                     <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300">
-                      <Download className="h-4 w-4" />
+                      <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Thin Border Effect on Hover */}
+                {/* Border Effect on Hover */}
                 <div className={`
                   absolute inset-0 border-2 border-transparent rounded-xl
                   transition-all duration-300 pointer-events-none
@@ -243,44 +339,33 @@ const Certificates = () => {
           ))}
         </div>
 
-        {/* Dealer Network Section */}
-        <div className="
-  relative
-  bg-gradient-to-br 
-  from-blue-100/70 
-  via-white 
-  to-emerald-100/70
-  rounded-3xl 
-  p-10 
-  shadow-2xl 
-  mb-20 
-  border border-blue-200
-">
-
-          {/* Soft inner overlay for depth */}
-          <div className="absolute inset-0 rounded-3xl bg-white/40 pointer-events-none" />
+        {/* Dealer Network Section - Responsive */}
+        <div className="relative bg-gradient-to-br from-blue-100/70 via-white to-emerald-100/70 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl mb-20 border border-blue-200">
+          
+          {/* Soft inner overlay */}
+          <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-white/40 pointer-events-none" />
 
           <div className="relative max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
 
               {/* LEFT CONTENT */}
               <div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-5">
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-5">
                   Join Our Trusted Dealer Network
                 </h3>
 
-                <p className="text-gray-700 mb-8 text-lg leading-relaxed">
-                  Become an authorized dealer and grow your business with India’s
+                <p className="text-gray-700 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">
+                  Become an authorized dealer and grow your business with India's
                   leading power solutions manufacturer.
                 </p>
 
                 {/* BENEFITS */}
-                <div className="mb-10">
-                  <h4 className="text-xl font-semibold text-gray-800 mb-4">
+                <div className="mb-8 sm:mb-10">
+                  <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
                     Dealer Benefits:
                   </h4>
 
-                  <ul className="grid grid-cols-2 gap-4">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {[
                       "Certified Products",
                       "Technical Training",
@@ -291,18 +376,10 @@ const Certificates = () => {
                     ].map((benefit, idx) => (
                       <li
                         key={idx}
-                        className="
-                  flex items-center gap-3 
-                  bg-white 
-                  px-4 py-3 
-                  rounded-xl 
-                  shadow-sm 
-                  hover:shadow-md 
-                  transition
-                "
+                        className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl shadow-sm hover:shadow-md transition"
                       >
-                        <Check className="h-4 w-4 text-green-600" />
-                        <span className="text-gray-800 font-medium">
+                        <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <span className="text-sm sm:text-base text-gray-800 font-medium">
                           {benefit}
                         </span>
                       </li>
@@ -312,80 +389,52 @@ const Certificates = () => {
 
                 {/* CTA BUTTON */}
                 <button
-                  className="
-            bg-gradient-to-r 
-            from-blue-600 
-            to-green-500
-            hover:from-green-500 
-            hover:to-blue-600
-            text-white 
-            font-bold 
-            px-8 py-4 
-            rounded-xl 
-            text-lg 
-            flex items-center gap-2
-            transition-all duration-300
-            transform hover:scale-105
-            shadow-lg hover:shadow-2xl
-          "
+                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-green-500 hover:from-green-500 hover:to-blue-600 text-white font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl"
                 >
                   Become a Dealer
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </div>
 
               {/* RIGHT – CERTIFICATE GRID */}
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5">
                 {certificates.slice(0, 4).map((cert, idx) => (
                   <div
                     key={idx}
-                    className="
-              relative 
-              rounded-2xl 
-              overflow-hidden 
-              shadow-lg 
-              group
-            "
+                    className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-lg group cursor-pointer"
+                    onClick={() => handleViewImage(cert.image, cert.title)}
                   >
                     {/* IMAGE */}
                     <div
-                      className="
-                h-44 
-                bg-cover bg-center
-                transform 
-                transition-transform duration-500
-                group-hover:scale-110
-              "
+                      className="h-32 sm:h-36 md:h-44 bg-cover bg-center transform transition-transform duration-500 group-hover:scale-110"
                       style={{ backgroundImage: `url(${cert.image})` }}
                     />
 
                     {/* GRADIENT OVERLAY */}
-                    <div className="
-              absolute inset-0 
-              bg-gradient-to-t 
-              from-blue-900/70 
-              via-green-800/40 
-              to-transparent
-            " />
+                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 via-green-800/40 to-transparent" />
 
                     {/* TEXT */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <span className="text-white text-sm font-semibold tracking-wide">
+                    <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4">
+                      <span className="text-white text-xs sm:text-sm font-semibold tracking-wide line-clamp-2">
                         {cert.title}
                       </span>
+                    </div>
+
+                    {/* View Indicator */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-black/50 rounded-full p-1.5 sm:p-2">
+                        <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-
             </div>
           </div>
         </div>
 
-
-
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+        {/* Stats Section - Responsive */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
           {[
             { label: "Years of Excellence", value: "15+" },
             { label: "Quality Certifications", value: "12+" },
@@ -394,18 +443,18 @@ const Certificates = () => {
           ].map((stat, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-shadow border border-gray-200 group hover:border-gray-900"
+              className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 text-center shadow-lg hover:shadow-xl transition-shadow border border-gray-200 group hover:border-gray-900"
             >
-              <div className="text-4xl font-bold text-gray-900 mb-2 group-hover:text-gray-700 transition-colors">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-gray-700 transition-colors">
                 {stat.value}
               </div>
-              <div className="text-gray-600 font-medium">{stat.label}</div>
+              <div className="text-xs sm:text-sm md:text-base text-gray-600 font-medium">{stat.label}</div>
             </div>
           ))}
         </div>
 
         {/* Footer Note */}
-        <div className="text-center text-gray-500 text-sm border-t border-gray-200 pt-8">
+        <div className="text-center text-gray-500 text-xs sm:text-sm border-t border-gray-200 pt-6 sm:pt-8">
           <p>All certificates are verified and can be authenticated through their respective issuing authorities.</p>
         </div>
 
