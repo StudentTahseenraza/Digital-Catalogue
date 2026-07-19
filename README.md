@@ -1,5 +1,6 @@
 ⚡ Power Solutions Factory
-<div align="center"> <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80" alt="Power Solutions Factory Banner" width="100%"/>
+<div align="center"> <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/ab697d10-eb10-4fa4-9ad8-69a0b2a1c96c" />
+
 Powering Tomorrow, Today 🌞
   
 A cutting-edge, AI-powered e-commerce platform for premium power solutions and energy products
